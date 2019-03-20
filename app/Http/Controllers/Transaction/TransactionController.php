@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Transaction;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiController;
+use App\Transaction;
+use Symfony\Component\HttpFoundation\Response;
 
-class TransactionController extends Controller
+class TransactionController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +16,9 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        //
+        $transactions = Transaction::all();
+
+        return $this->showAll($transactions, Response::HTTP_OK);
     }
 
     /**
@@ -46,7 +50,9 @@ class TransactionController extends Controller
      */
     public function show($id)
     {
-        //
+        $transaction = Transaction::findOrFail($id);
+
+        return $this->showOne($transaction, Response::HTTP_OK);
     }
 
     /**

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Category;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
+use App\Category;
+use Symfony\Component\HttpFoundation\Response;
 
 class CategoryController extends ApiController
 {
@@ -14,17 +16,9 @@ class CategoryController extends ApiController
      */
     public function index()
     {
-        //
-    }
+        $categories = Category::all();
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return $this->showAll($categories, Response::HTTP_OK);
     }
 
     /**
@@ -35,7 +29,16 @@ class CategoryController extends ApiController
      */
     public function store(Request $request)
     {
-        //
+        $rules = [
+            'name' => 'required',
+            'description' => 'required'
+        ];
+
+        $this->validate($request, $rules);
+
+        $category = Category::create($request->all());
+
+        return $this->showOne($category, Response::HTTP_CREATED);
     }
 
     /**
@@ -46,18 +49,9 @@ class CategoryController extends ApiController
      */
     public function show($id)
     {
-        //
-    }
+        $category = Category::findOrFail($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        return $this->showOne($category, Response::HTTP_OK);
     }
 
     /**
@@ -69,7 +63,20 @@ class CategoryController extends ApiController
      */
     public function update(Request $request, $id)
     {
-        //
+        $category = Category::findOrFail($id);
+
+        $category->fill($request->only([
+            'name',
+            'description'
+        ]));
+
+        if($category->isClean()) {
+            return $this->errorResponse('No se han enviado valores modificados!', Response::HTTP_NOT_MODIFIED);
+        }
+        
+        $category->save();
+
+        return $this->showOne($category, Response::HTTP_OK);
     }
 
     /**
@@ -80,6 +87,10 @@ class CategoryController extends ApiController
      */
     public function destroy($id)
     {
-        //
+        $category = Category::findOrFail($id);
+
+        $category->delete();
+
+        return $this->showOne($category, Response::HTTP_OK);
     }
 }
