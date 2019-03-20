@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        // Desactiva temporalmente los eventos
+        User::flushEventListeners();
         // $this->call(UsersTableSeeder::class);
         factory(User::class, 1000)->create();
         factory(Category::class, 30)->create();

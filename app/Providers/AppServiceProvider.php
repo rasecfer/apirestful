@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Product;
+use App\User;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserCreated;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +27,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        User::created(function($user) {
+            retry(5, function() use ($user) {
+                Mail::to($user->email)->send(new UserCreated($user));
+            }, 100);
+        });
+
         Product::updated(function($product) {
             if($product->quantity == 0 && $product->esDisponible()){
                 $product->status = Product::PRODUCTO_NO_DISPONIBLE;

@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
 use App\User;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserCreated;
 
 class UserController extends ApiController
 {
@@ -38,11 +41,13 @@ class UserController extends ApiController
 
         $this->validate($request, $rules);
 
-        $request->password = bcrypt($request->password);
-        $request->verified = User::USUARIO_NO_VERIFICADO;
-        $request->verification_token = User::generarVerificationToken();
-        $request->admin = User::USUARIO_REGULAR;
-        $user = User::create($request->all());
+        $datos = $request->all();
+
+        $datos['password'] = bcrypt($request->password);
+        $datos['verified'] = User::USUARIO_NO_VERIFICADO;
+        $datos['verification_token'] = User::generarVerificationToken();
+        $datos['admin'] = User::USUARIO_REGULAR;
+        $user = User::create($datos);
 
         return $this->showOne($user, Response::HTTP_CREATED);
     }
@@ -124,5 +129,27 @@ class UserController extends ApiController
         $user->delete();
 
         return $this->showOne($user, Response::HTTP_OK);
+    }
+
+    public function verify($token)
+    {
+        $user = User::where('verification_token', $token)->firstOrFail();
+
+        $user->verified = User::USUARIO_VERIFICADO;
+        $user->verification_token = null;
+        $user->save();
+
+        return response('La cuenta ha sido verificada', Response::HTTP_OK);
+    }
+
+    public function resendMail($id)
+    {
+        $user = User::findOrFail($id);
+        $user->verification_token = User::generarVerificationToken();
+        $user->verified = User::USUARIO_NO_VERIFICADO;
+        $user->save();
+        retry(5, function() use ($user) {
+            Mail::to($user->email)->send(new UserCreated($user));
+        }, 100);
     }
 }
