@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Transformers\ProductTransformer;
 
 class Product extends Model
 {
@@ -11,6 +12,8 @@ class Product extends Model
     
     const PRODUCTO_DISPONIBLE = '1';
     const PRODUCTO_NO_DISPONIBLE = '0';
+
+    public $transformer = ProductTransformer::class;
 
     protected $dates = ['deleted_at'];
     protected $fillable = [
