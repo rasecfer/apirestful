@@ -38,8 +38,9 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
+            'cors',
             'throttle:60,1',
-            'bindings',
+            'bindings',            
         ],
     ];
 
@@ -56,6 +57,12 @@ class Kernel extends HttpKernel
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        /**
+         * Middleware para validar que el usuario exista y otorgar acceso
+         * a los usuarios a las rutas básicas de lectura
+         */
+        'client.credentials' => \Laravel\Passport\Http\Middleware\CheckClientCredentials::class,
+        'cors' => \Barryvdh\Cors\HandleCors::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,

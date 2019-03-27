@@ -9,6 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SellerTransactionController extends ApiController
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
     /**
      * Display a listing of the resource.
      *

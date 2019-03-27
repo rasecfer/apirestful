@@ -9,6 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CategoryProductController extends ApiController
 {
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
     /**
      * Display a listing of the resource.
      *
